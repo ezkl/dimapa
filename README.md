@@ -1,4 +1,4 @@
-# DiffMatchPatch [![Code Climate](https://codeclimate.com/github/kalmbach/diff_match_patch.png)](https://codeclimate.com/github/kalmbach/diff_match_patch)
+# DiMaPa (Ruby Implementation of Google's DiffMatchPatch)
 
 A ruby implementation of the google diff-match-patch library.
 http://code.google.com/p/google-diff-match-patch/
@@ -8,8 +8,7 @@ The Diff Match and Patch libraries offer robust algorithms to perform the operat
   This work was inspired by the diff_match_patch-ruby module.
   (https://github.com/reima/diff_match_patch-ruby)
 
+
+
+### Forked from kalmbach/diff_match_patch
 Copyright (c) 2011, Jorge Kalmbach <kalmbach.at.gmail.com>
-
-### Notice
-
-Please use the released gem, the code in this repository is under development/experimentation.
