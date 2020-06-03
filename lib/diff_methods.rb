@@ -79,10 +79,10 @@ module DiffMethods
   def diff_compute(text1, text2, checklines, deadline)
     if diffs = diff_compute_common_cases(text1, text2)
       return diffs
-  
+
     elsif diffs = diff_compute_half_match(text1, text2, checklines, deadline)
       return diffs
-  
+
     elsif checklines && text1.length > 100 && text2.length > 100
       diff_lineMode(text1, text2, deadline)
 
@@ -110,7 +110,7 @@ module DiffMethods
   def diff_compute_common_cases(text1, text2)
     # Just add some text (speedup).
     return [[:insert, text2]] if text1.empty?
-    
+
     # Just delete some text (speedup).
     return [[:delete, text1]] if text2.empty?
 

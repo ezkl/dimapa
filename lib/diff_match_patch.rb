@@ -47,14 +47,14 @@ class DiffMatchPatch
   def diff_lineMode(text1, text2, deadline)
     # Scan the text on a line-by-line basis first.
     text1, text2, line_array = diff_linesToChars(text1, text2)
-  
+
     diffs = diff_main(text1, text2, false, deadline)
-  
+
     # Convert the diff back to original text.
     diff_charsToLines(diffs, line_array)
     # Eliminate freak matches (e.g. blank lines)
     diff_cleanupSemantic(diffs)
-  
+
     # Rediff any replacement blocks, this time character-by-character.
     # Add a dummy entry at the end.
     diffs.push([:equal, ''])
@@ -77,7 +77,7 @@ class DiffMatchPatch
           if count_delete >= 1 && count_insert >= 1
             # Delete the offending records and add the merged ones.
             a = diff_main(text_delete, text_insert, false, deadline)
-            diffs[pointer - count_delete - count_insert, 
+            diffs[pointer - count_delete - count_insert,
               count_delete + count_insert] = []
             pointer = pointer - count_delete - count_insert
             diffs[pointer, 0] = a
@@ -90,8 +90,8 @@ class DiffMatchPatch
       end
       pointer += 1
     end
-    
-    diffs.pop # Remove the dummy entry at the end. 
+
+    diffs.pop # Remove the dummy entry at the end.
     return diffs
   end
 
@@ -110,8 +110,8 @@ class DiffMatchPatch
     v1[v_offset + 1] = 0
     v2[v_offset + 1] = 0
     delta = text1_length - text2_length
-  
-    # If the total number of characters is odd, then the front path will 
+
+    # If the total number of characters is odd, then the front path will
     # collide with the reverse path.
     front = (delta % 2 != 0)
     # Offsets for start and end of k loop.
@@ -123,7 +123,7 @@ class DiffMatchPatch
     max_d.times do |d|
       # Bail out if deadline is reached.
       break if deadline && Time.now >= deadline
-  
+
       # Walk the front path one step.
       (-d + k1start).step(d - k1end, 2) do |k1|
         k1_offset = v_offset + k1
@@ -158,7 +158,7 @@ class DiffMatchPatch
           end
         end
       end
-  
+
       # Walk the reverse path one step.
       (-d + k2start).step(d - k2end, 2) do |k2|
         k2_offset = v_offset + k2
@@ -167,7 +167,7 @@ class DiffMatchPatch
         else
           x2 = v2[k2_offset - 1] + 1
         end
-      
+
         y2 = x2 - k2
         while x2 < text1_length && y2 < text2_length && text1[-x2-1] == text2[-y2-1]
           x2 += 1
@@ -196,7 +196,7 @@ class DiffMatchPatch
         end
       end
     end
-  
+
     # Diff took too long and hit the deadline or
     # number of diffs equals number of characters, no commonality at all.
     [[:delete, text1], [:insert, text2]]
@@ -209,15 +209,15 @@ class DiffMatchPatch
     text2a = text2[0...y]
     text1b = text1[x..-1]
     text2b = text2[y..-1]
-  
+
     # Compute both diffs serially.
     diffs = diff_main(text1a, text2a, false, deadline)
     diffsb = diff_main(text1b, text2b, false, deadline)
-  
+
     diffs + diffsb
   end
 
-  # Split two texts into an array of strings.  Reduce the texts to a string 
+  # Split two texts into an array of strings.  Reduce the texts to a string
   # of hashes where each Unicode character represents one line.
   def diff_linesToChars(text1, text2)
     line_array = ['']  # e.g. line_array[4] == "Hello\n"
@@ -276,7 +276,7 @@ class DiffMatchPatch
   def diff_commonSuffix(text1, text2)
     # Quick check for common null cases.
     return 0 if text1.empty? || text2.empty? || text1[-1] != text2[-1]
-  
+
     # Binary search.
     # Performance analysis: http://neil.fraser.name/news/2007/10/09/
     pointer_min = 0
@@ -305,7 +305,7 @@ class DiffMatchPatch
 
     # Eliminate the null case.
     return 0  if text1_length.zero? || text2_length.zero?
-  
+
     # Truncate the longer string.
     if text1_length > text2_length
       text1 = text1[-text2_length..-1]
@@ -336,7 +336,7 @@ class DiffMatchPatch
     end
   end
 
-  # Does a substring of shorttext exist within longtext such that the 
+  # Does a substring of shorttext exist within longtext such that the
   # substring is at least half the length of longtext?
   def diff_halfMatchI(longtext, shorttext, i)
     seed = longtext[i, longtext.length / 4]
@@ -375,7 +375,7 @@ class DiffMatchPatch
     hm1 = diff_halfMatchI(longtext, shorttext, (longtext.length + 3) / 4)
     # Check again based on the third quarter.
     hm2 = diff_halfMatchI(longtext, shorttext, (longtext.length + 1) / 2)
-  
+
     if hm1.nil? && hm2.nil?
       return nil
     elsif hm2.nil? || hm1.nil?
@@ -407,7 +407,7 @@ class DiffMatchPatch
     # Number of characters that changed after the equality.
     length_insertions2 = 0
     length_deletions2 = 0
-  
+
     while pointer < diffs.length
       if diffs[pointer][0] == :equal # Equality found.
         equalities.push(pointer)
@@ -422,7 +422,7 @@ class DiffMatchPatch
         else
           length_deletions2 += diffs[pointer][1].length
         end
-  
+
         if last_equality &&
            last_equality.length <= [length_insertions1, length_deletions1].max &&
            last_equality.length <= [length_insertions2, length_deletions2].max
@@ -454,7 +454,7 @@ class DiffMatchPatch
     # Normalize the diff.
     diff_cleanupMerge(diffs) if changes
     diff_cleanupSemanticLossless(diffs)
-  
+
     # Find any overlaps between deletions and insertions.
     # e.g: <del>abcxxx</del><ins>xxxdef</ins>
     #   -> <del>abc</del>xxx<ins>def</ins>
@@ -473,7 +473,7 @@ class DiffMatchPatch
              overlap_length1 >= insertion.length / 2.0
             # Overlap found.  Insert an equality and trim the surrounding edits.
             diffs[pointer, 0] = [[:equal, insertion[0...overlap_length1]]]
-            diffs[pointer -1][0] = :delete
+            diffs[pointer - 1][0] = :delete
             diffs[pointer - 1][1] = deletion[0...-overlap_length1]
             diffs[pointer + 1][0] = :insert
             diffs[pointer + 1][1] = insertion[overlap_length1..-1]
@@ -489,14 +489,14 @@ class DiffMatchPatch
             diffs[pointer + 1][1] = deletion[overlap_length2..-1]
             pointer += 1
           end
-        end        
+        end
         pointer += 1
       end
       pointer += 1
     end
   end
 
-  # Given two strings, compute a score representing whether the 
+  # Given two strings, compute a score representing whether the
   # internal boundary falls on logical boundaries.
   # Scores range from 5 (best) to 0 (worst).
   def diff_cleanupSemanticScore(one, two)
@@ -511,7 +511,7 @@ class DiffMatchPatch
     linebreak = /[\r\n]/
     lineEnd = /\n\r?\n$/
     lineStart = /^\r?\n\r?\n/
-  
+
     # Each port of this function behaves slightly differently due to
     # subtle differences in each language's definition of things like
     # 'whitespace'.  Since this function's purpose is largely cosmetic,
@@ -550,7 +550,7 @@ class DiffMatchPatch
         equality1 = diffs[pointer - 1][1]
         edit = diffs[pointer][1]
         equality2 = diffs[pointer + 1][1]
-  
+
         # First, shift the edit as far left as possible.
         common_offset = diff_commonSuffix(equality1, edit)
         if common_offset != 0
@@ -559,7 +559,7 @@ class DiffMatchPatch
           edit = common_string + edit[0...-common_offset]
           equality2 = common_string + equality2
         end
-  
+
         # Second, step character by character right, looking for the best fit.
         best_equality1 = equality1
         best_edit = edit
@@ -585,7 +585,7 @@ class DiffMatchPatch
           # We have an improvement, save it back to the diff.
           if best_equality1.empty?
             diffs[pointer - 1, 1] = []
-            pointer -= 1            
+            pointer -= 1
           else
             diffs[pointer - 1][1] = best_equality1
           end
@@ -610,10 +610,10 @@ class DiffMatchPatch
     changes = false
     equalities = []  # Stack of indices where equalities are found.
     last_equality = ''  # Always equal to equalities.last[1]
-    pointer = 0  # Index of current position.    
-    pre_ins = false # Is there an insertion operation before the last equality.      
-    pre_del = false # Is there a deletion operation before the last equality.      
-    post_ins = false # Is there an insertion operation after the last equality.      
+    pointer = 0  # Index of current position.
+    pre_ins = false # Is there an insertion operation before the last equality.
+    pre_del = false # Is there a deletion operation before the last equality.
+    post_ins = false # Is there an insertion operation after the last equality.
     post_del = false # Is there a deletion operation after the last equality.
 
     while pointer < diffs.length
@@ -645,7 +645,7 @@ class DiffMatchPatch
         # <ins>A</del>X<ins>C</ins><del>D</del>
         # <ins>A</ins><del>B</del>X<del>C</del>
 
-        if !last_equality.empty? && 
+        if !last_equality.empty? &&
            ((pre_ins && pre_del && post_ins && post_del) ||
            ((last_equality.length < diff_editCost / 2) &&
            [pre_ins, pre_del, post_ins, post_del].count(true) == 3))
@@ -669,11 +669,11 @@ class DiffMatchPatch
             post_del = false
           end
           changes = true
-        end      
+        end
       end
       pointer += 1
     end
-  
+
     if changes
         diff_cleanupMerge(diffs)
     end
@@ -728,13 +728,13 @@ class DiffMatchPatch
 
             # Delete the offending records and add the merged ones.
             if count_delete.zero?
-              diffs[pointer - count_delete - count_insert, count_delete + count_insert] = 
+              diffs[pointer - count_delete - count_insert, count_delete + count_insert] =
                 [[:insert, text_insert]]
             elsif count_insert.zero?
-              diffs[pointer - count_delete - count_insert, count_delete + count_insert] = 
+              diffs[pointer - count_delete - count_insert, count_delete + count_insert] =
                 [[:delete, text_delete]]
             else
-              diffs[pointer - count_delete - count_insert, count_delete + count_insert] = 
+              diffs[pointer - count_delete - count_insert, count_delete + count_insert] =
                 [[:delete, text_delete], [:insert, text_insert]]
             end
             pointer = pointer - count_delete - count_insert +
@@ -776,7 +776,7 @@ class DiffMatchPatch
         elsif diffs[pointer][1][0...diffs[pointer + 1][1].length] == diffs[pointer + 1][1]
           # Shift the edit over the next equality.
           diffs[pointer - 1][1] += diffs[pointer + 1][1]
-          diffs[pointer][1] = diffs[pointer][1][diffs[pointer + 1][1].length..-1] + 
+          diffs[pointer][1] = diffs[pointer][1][diffs[pointer + 1][1].length..-1] +
             diffs[pointer + 1][1]
           diffs[pointer + 1, 1] = []
           changes = true
@@ -804,7 +804,7 @@ class DiffMatchPatch
       end
       if diff[0] != :delete
         chars2 += diff[1].length
-      end 
+      end
       if chars1 > loc
         true
       else
@@ -838,7 +838,7 @@ class DiffMatchPatch
     end.join
   end
 
-  # Compute and return the source text (all equalities and deletions).  
+  # Compute and return the source text (all equalities and deletions).
   def diff_text1(diffs)
     diffs.map do |op, data|
       if op == :insert
@@ -848,7 +848,7 @@ class DiffMatchPatch
       end
     end.join
   end
-  
+
   # Compute and return the destination text (all equalities and insertions).
   def diff_text2(diffs)
     diffs.map do |op, data|
@@ -926,16 +926,16 @@ class DiffMatchPatch
             else
               diffs.push([:delete, text])
             end
-          rescue ArgumentError => e
+          rescue ArgumentError => _
             raise ArgumentError.new(
               "Invalid number in diff_fromDelta: #{param.inspect}")
           end
         else
           raise ArgumentError.new(
-            "Invalid diff operation in diff_fromDelta: #{token.inspect}")        
+            "Invalid diff operation in diff_fromDelta: #{token.inspect}")
       end
     end
-    
+
     if pointer != text1.length
       raise ArgumentError.new("Delta length (#{pointer}) does not equal " +
         "source text length #{text1.length}")
@@ -949,7 +949,7 @@ class DiffMatchPatch
     if [text, pattern].any?(&:nil?)
       raise ArgumentError.new("Null input. (match_main)")
     end
-  
+
     loc = [0, [loc, text.length].min].max
     if text == pattern
       # Shortcut (potentially not guaranteed by the algorithm)
@@ -972,7 +972,7 @@ class DiffMatchPatch
     if pattern.length > match_maxBits
       throw ArgumentError.new("Pattern too long")
     end
-  
+
     # Initialise the alphabet.
     s = match_alphabet(pattern)
 
@@ -985,8 +985,8 @@ class DiffMatchPatch
         return proximity == 0 ? accuracy : 1.0
       end
       return accuracy + (proximity.to_f / match_distance)
-    end    
-  
+    end
+
     # Highest score beyond which we give up.
     score_threshold = match_threshold
     # Is there a nearby exact match? (speedup)
@@ -999,12 +999,12 @@ class DiffMatchPatch
         score_threshold = [match_bitapScore[0, best_loc], score_threshold].min
       end
     end
-  
+
     # Initialise the bit arrays.
     match_mask = 1 << (pattern.length - 1)
     best_loc = -1
 
-    bin_max = pattern.length + text.length  
+    bin_max = pattern.length + text.length
     # Empty initialization added to appease pychecker.
     last_rd = nil
     pattern.length.times do |d|
@@ -1026,11 +1026,11 @@ class DiffMatchPatch
       bin_max = bin_mid
       start = [1, loc - bin_mid + 1].max
       finish = [loc + bin_mid, text.length].min + pattern.length
-  
+
       rd = Array.new(finish + 2, 0)
       rd[finish + 1] = (1 << d) - 1
       finish.downto(start) do |j|
-        char_match = s[text[j - 1]] || 0        
+        char_match = s[text[j - 1]] || 0
         if d == 0 # First pass: exact match.
           rd[j] = ((rd[j + 1] << 1) | 1) & char_match
         else # Subsequent passes: fuzzy match.
@@ -1062,7 +1062,7 @@ class DiffMatchPatch
       end
       last_rd = rd
     end
-  
+
     best_loc
   end
 
@@ -1160,7 +1160,7 @@ class DiffMatchPatch
     return  if text.empty?
     pattern = text[patch.start2, patch.length1]
     padding = 0
-  
+
     # Look for the first and last matches of pattern in text.  If two different
     # matches are found, increase the pattern length.
     while text.index(pattern) != text.rindex(pattern) &&
@@ -1171,7 +1171,7 @@ class DiffMatchPatch
 
     # Add one chunk for good luck.
     padding += patch_margin
-  
+
     # Add the prefix.
     prefix = text[[0, patch.start2 - padding].max...patch.start2]
     patch.diffs.unshift([:equal, prefix]) if !prefix.to_s.empty?
@@ -1179,7 +1179,7 @@ class DiffMatchPatch
     # Add the suffix.
     suffix = text[patch.start2 + patch.length1, padding]
     patch.diffs.push([:equal, suffix]) if !suffix.to_s.empty?
- 
+
     # Roll back the start points.
     patch.start1 -= prefix.length
     patch.start2 -= prefix.length
@@ -1230,9 +1230,9 @@ class DiffMatchPatch
     else
       raise ArgumentError.new('Unknown call format to patch_make.')
     end
-  
+
     return []  if diffs.empty? # Get rid of the null case.
-  
+
     patches = []
     patch = PatchObj.new
     char_count1 = 0 # Number of characters into the text1 string.
@@ -1247,7 +1247,7 @@ class DiffMatchPatch
         patch.start1 = char_count1
         patch.start2 = char_count2
       end
-  
+
       case diff_type
         when :insert
           patch.diffs.push(diff)
@@ -1281,7 +1281,7 @@ class DiffMatchPatch
             end
           end
       end
-  
+
       # Update the current character count.
       if diff_type != :insert
         char_count1 += diff_text.length
@@ -1296,15 +1296,15 @@ class DiffMatchPatch
       patch_addContext(patch, prepatch_text)
       patches.push(patch)
     end
-  
+
     patches
   end
 
   # Merge a set of patches onto the text.  Return a patched text, as well
   # as a list of true/false values indicating which patches were applied.
-  def patch_apply(patches, text)  
+  def patch_apply(patches, text)
     return [text, []]  if patches.empty?
-  
+
     # Deep copy the patches so that no changes are made to originals.
     patches = Marshal.load(Marshal.dump(patches))
 
@@ -1321,7 +1321,7 @@ class DiffMatchPatch
     patches.each_with_index do |patch, x|
       expected_loc = patch.start2 + delta
       text1 = diff_text1(patch.diffs)
-      end_loc = -1      
+      end_loc = -1
       if text1.length > match_maxBits
         # patch_splitMax will only provide an oversized pattern in the case of
         # a monster delete.
@@ -1347,12 +1347,12 @@ class DiffMatchPatch
         results[x] = true
         delta = start_loc - expected_loc
         text2 = text[start_loc, (end_loc == -1) ? text1.length : end_loc + match_maxBits]
- 
+
         if text1 == text2
           # Perfect match, just shove the replacement text in.
           text = text[0, start_loc] + diff_text2(patch.diffs) + text[(start_loc + text1.length)..-1]
         else
-          # Imperfect match. 
+          # Imperfect match.
           # Run a diff to get a framework of equivalent indices.
           diffs = diff_main(text1, text2, false)
           if text1.length > match_maxBits &&
@@ -1361,7 +1361,7 @@ class DiffMatchPatch
             results[x] = false
           else
             diff_cleanupSemanticLossless(diffs)
-            index1 = 0  
+            index1 = 0
             patch.diffs.each do |op, data|
               if op != :equal
                 index2 = diff_xIndex(diffs, index1)
@@ -1382,22 +1382,22 @@ class DiffMatchPatch
     end
 
     # Strip the padding off.
-    text = text[null_padding.length...-null_padding.length]  
+    text = text[null_padding.length...-null_padding.length]
     [text, results]
   end
 
-  # Add some padding on text start and end so that edges can match 
+  # Add some padding on text start and end so that edges can match
   # something. Intended to be called only from within patch_apply.
   def patch_addPadding(patches)
     padding_length = patch_margin
     null_padding = (1..padding_length).map{ |x| x.chr(Encoding::UTF_8) }.join
-  
+
     # Bump all the patches forward.
     patches.each do |patch|
       patch.start1 += padding_length
       patch.start2 += padding_length
     end
-  
+
     # Add some padding on start of first diff.
     patch = patches.first
     diffs = patch.diffs
@@ -1417,7 +1417,7 @@ class DiffMatchPatch
       patch.length1 += extra_length
       patch.length2 += extra_length
     end
-  
+
     # Add some padding on end of last diff.
     patch = patches.last
     diffs = patch.diffs
@@ -1433,11 +1433,11 @@ class DiffMatchPatch
       patch.length1 += extra_length
       patch.length2 += extra_length
     end
-  
+
     null_padding
   end
 
-  # Look through the patches and break up any which are longer than the 
+  # Look through the patches and break up any which are longer than the
   # maximum limit of the match algorithm.
   def patch_splitMax(patches)
     patch_size = match_maxBits
