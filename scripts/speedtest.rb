@@ -1,10 +1,10 @@
-require "diff_match_patch"
+require "dimapa"
 require "benchmark"
 
 text1 = File.read("scripts/speedtest/speedtest1.txt")
 text2 = File.read("scripts/speedtest/speedtest2.txt")
 
-dmp = DiffMatchPatch.new
+dmp = DiMaPa.new
 dmp.diff_timeout = 0.0
 
 Benchmark.bm(7) do |x|

@@ -3,7 +3,7 @@ require "patch_obj"
 
 # Class containing the diff, match and patch methods.
 # Also contains the behaviour settings.
-class DiffMatchPatch
+class DiMaPa
   include DiffMethods
 
   attr_accessor :diff_edit_cost

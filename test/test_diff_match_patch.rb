@@ -1,9 +1,9 @@
 require_relative "./helper"
-require_relative "../lib/diff_match_patch"
+require_relative "../lib/dimapa"
 
 class DiffTest < Minitest::Test
   def setup
-    @dmp = DiffMatchPatch.new
+    @dmp = DiMaPa.new
   end
 
   def test_diff_common_prefix

@@ -13,7 +13,7 @@ end
 desc "Start REPL"
 task :console do
   require "pry"
-  require "diff_match_patch"
+  require "dimapa"
   Pry.start
 end
 
