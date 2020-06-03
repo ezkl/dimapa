@@ -892,7 +892,7 @@ class DiffMatchPatch
     diffs.map do |op, data|
       case op
         when :insert
-          '+' + URI.encode(data, /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/)
+          '+' + PatchObj::PATCH_PARSER.escape(data, /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/)
         when :delete
           '-' + data.length.to_s
         when :equal
@@ -914,7 +914,7 @@ class DiffMatchPatch
       param = token[1..-1]
       case token[0]
         when '+'
-          diffs.push([:insert, URI.decode(param.force_encoding(Encoding::UTF_8))])
+          diffs.push([:insert, PatchObj::PATCH_PARSER.unescape(param.force_encoding(Encoding::UTF_8))])
         when '-', '='
           begin
             n = Integer(param)
@@ -1123,7 +1123,7 @@ class DiffMatchPatch
         end
 
         sign = text[text_pointer][0]
-        line = URI.decode(text[text_pointer][1..-1].force_encoding(Encoding::UTF_8))
+        line = PatchObj::PATCH_PARSER.unescape(text[text_pointer][1..-1].force_encoding(Encoding::UTF_8))
 
         case sign
         when '-'

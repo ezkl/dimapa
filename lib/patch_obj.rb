@@ -17,9 +17,11 @@ class PatchObj
 
   OPERATOR_TO_CHAR = {insert: '+', delete: '-', equal: ' '}
   private_constant :OPERATOR_TO_CHAR
-  
+
   ENCODE_REGEX = /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/
   private_constant :ENCODE_REGEX
+
+  PATCH_PARSER = URI::RFC2396_Parser.new
 
   # Emulate GNU diff's format
   # Header: @@ -382,8 +481,9 @@
@@ -32,9 +34,9 @@ class PatchObj
 
     # Encode the body of the patch with %xx notation.
     text += diffs.map do |op, data|
-      [OPERATOR_TO_CHAR[op], URI.encode(data, ENCODE_REGEX), "\n"].join
+      [OPERATOR_TO_CHAR[op],  PATCH_PARSER.escape(data, ENCODE_REGEX), "\n"].join
     end.join.gsub('%20', ' ')
-    
+
     return text
   end
 
