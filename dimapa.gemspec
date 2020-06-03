@@ -11,10 +11,14 @@ Gem::Specification.new do |s|
     "LICENSE",
     "Rakefile",
     "Gemfile",
-    "lib/diff_match_patch.rb",
+    "lib/dimapa.rb",
     "lib/diff_methods.rb",
     "lib/patch_obj.rb",
-    "test/diff_match_patch.rb"
+    "scripts/speedtest.rb",
+    "scripts/speedtest/speedtest1.txt",
+    "scripts/speedtest/speedtest2.txt",
+    "test/helper.rb",
+    "test/test_dimapa.rb"
   ]
   s.homepage = "https://github.com/ezkl/dimapa"
   s.add_development_dependency "rake"
