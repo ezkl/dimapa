@@ -1518,3 +1518,5 @@ class DiMaPa
     end
   end
 end
+
+DiffMatchPatch = DiMaPa
