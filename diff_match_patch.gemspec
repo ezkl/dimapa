@@ -10,8 +10,11 @@ Gem::Specification.new do |s|
     "README.md",
     "LICENSE",
     "Rakefile",
-    "lib/diff_match_patch.rb", 
-    "lib/patch_obj.rb", 
-    "test/diff_match_patch-test.rb"]
+    "lib/diff_match_patch.rb",
+    "lib/diff_methods.rb",
+    "lib/patch_obj.rb",
+    "test/diff_match_patch.rb"]
   s.homepage    = 'https://github.com/kalmbach/diff_match_patch'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'minitest'
 end
