@@ -25,8 +25,8 @@ module DiffMethods
 
   def diff_main_compute_diff(text1, text2, checklines, deadline)
     # Trim off common prefix and suffix (speedup).
-    common_prefix, text1, text2 = diff_trimCommonPrefix(text1, text2)
-    common_suffix, text1, text2 = diff_trimCommonSuffix(text1, text2)
+    common_prefix, text1, text2 = diff_trim_common_prefix(text1, text2)
+    common_suffix, text1, text2 = diff_trim_common_suffix(text1, text2)
 
     # Compute the diff on the middle block.
     diffs = diff_compute(text1, text2, checklines, deadline)
@@ -34,7 +34,7 @@ module DiffMethods
     # Restore the prefix and suffix.
     diffs.unshift([:equal, common_prefix]) unless common_prefix.nil?
     diffs.push([:equal, common_suffix]) unless common_suffix.nil?
-    diff_cleanupMerge(diffs)
+    diff_cleanup_merge(diffs)
 
     diffs
   end
@@ -49,8 +49,8 @@ module DiffMethods
   private :diff_newDeadline
 
   # Trim off the common prefix
-  def diff_trimCommonPrefix(text1, text2)
-    if (common_length = diff_commonPrefix(text1, text2)).nonzero?
+  def diff_trim_common_prefix(text1, text2)
+    if (common_length = diff_common_prefix(text1, text2)).nonzero?
       common_prefix = text1[0...common_length]
       text1 = text1[common_length..-1]
       text2 = text2[common_length..-1]
@@ -59,11 +59,11 @@ module DiffMethods
     [common_prefix, text1, text2]
   end
 
-  private :diff_trimCommonPrefix
+  private :diff_trim_common_prefix
 
   # Trim off the common suffix
-  def diff_trimCommonSuffix(text1, text2)
-    if (common_length = diff_commonSuffix(text1, text2)).nonzero?
+  def diff_trim_common_suffix(text1, text2)
+    if (common_length = diff_common_suffix(text1, text2)).nonzero?
       common_suffix = text1[-common_length..-1]
       text1 = text1[0...-common_length]
       text2 = text2[0...-common_length]
@@ -72,19 +72,19 @@ module DiffMethods
     [common_suffix, text1, text2]
   end
 
-  private :diff_trimCommonSuffix
+  private :diff_trim_common_suffix
 
   # Find the differences between two texts.  Assumes that the texts do not
   # have any common prefix or suffix.
   def diff_compute(text1, text2, checklines, deadline)
-    if diffs = diff_compute_common_cases(text1, text2)
+    if (diffs = diff_compute_common_cases(text1, text2))
       diffs
 
-    elsif diffs = diff_compute_half_match(text1, text2, checklines, deadline)
+    elsif (diffs = diff_compute_half_match(text1, text2, checklines, deadline))
       diffs
 
     elsif checklines && text1.length > 100 && text2.length > 100
-      diff_lineMode(text1, text2, deadline)
+      diff_line_mode(text1, text2, deadline)
 
     else
       diff_bisect(text1, text2, deadline)
@@ -92,7 +92,7 @@ module DiffMethods
   end
 
   def diff_compute_half_match(text1, text2, checklines, deadline)
-    if hm = diff_halfMatch(text1, text2)
+    if (hm = diff_half_match(text1, text2))
       # A half-match was found, sort out the return data.
       text1_a, text1_b, text2_a, text2_b, mid_common = hm
 
@@ -117,7 +117,7 @@ module DiffMethods
     short, long = [text1, text2].sort_by(&:length)
 
     # Shorter text is inside the longer text (speedup).
-    if i = long.index(short)
+    if (i = long.index(short))
       op = text1.length > text2.length ? :delete : :insert
       [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..-1]]]
 
