@@ -1,5 +1,5 @@
 module DiffMethods
-  FIXNUM_MAX =  2**(0.size * 8 - 2) - 1
+  FIXNUM_MAX = 2**(0.size * 8 - 2) - 1
 
   attr_accessor :diff_timeout
 
@@ -10,12 +10,12 @@ module DiffMethods
 
   # Find the differences between two texts.  Simplifies the problem by
   # stripping any common prefix or suffix off the texts before editing.
-  def diff_main(text1, text2, checklines=true, deadline=nil)
+  def diff_main(text1, text2, checklines = true, deadline = nil)
     # Set a deadline by which time the diff must be complete.
     deadline ||= diff_newDeadline
 
     # Check for null inputs.
-    raise ArgumentError.new('Null inputs. (diff_main)') unless text1 || text2
+    raise ArgumentError.new("Null inputs. (diff_main)") unless text1 || text2
 
     # Check for equality (speedup).
     return (text1.empty? ? [] : [[:equal, text1]]) if text1 == text2
@@ -56,7 +56,7 @@ module DiffMethods
       text2 = text2[common_length..-1]
     end
 
-    return [common_prefix, text1, text2]
+    [common_prefix, text1, text2]
   end
 
   private :diff_trimCommonPrefix
@@ -69,7 +69,7 @@ module DiffMethods
       text2 = text2[0...-common_length]
     end
 
-    return [common_suffix, text1, text2]
+    [common_suffix, text1, text2]
   end
 
   private :diff_trimCommonSuffix
@@ -78,10 +78,10 @@ module DiffMethods
   # have any common prefix or suffix.
   def diff_compute(text1, text2, checklines, deadline)
     if diffs = diff_compute_common_cases(text1, text2)
-      return diffs
+      diffs
 
     elsif diffs = diff_compute_half_match(text1, text2, checklines, deadline)
-      return diffs
+      diffs
 
     elsif checklines && text1.length > 100 && text2.length > 100
       diff_lineMode(text1, text2, deadline)
@@ -101,7 +101,7 @@ module DiffMethods
       diffs_b = diff_main(text1_b, text2_b, checklines, deadline)
 
       # Merge the results.
-      return diffs_a + [[:equal, mid_common]] + diffs_b
+      diffs_a + [[:equal, mid_common]] + diffs_b
     end
   end
 
@@ -119,12 +119,12 @@ module DiffMethods
     # Shorter text is inside the longer text (speedup).
     if i = long.index(short)
       op = text1.length > text2.length ? :delete : :insert
-      return [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..-1]]]
+      [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..-1]]]
 
     # Single character string.
     elsif short.length == 1
       # After the previous speedup, the character can't be an equality.
-      return [[:delete, text1], [:insert, text2]]
+      [[:delete, text1], [:insert, text2]]
     end
   end
 

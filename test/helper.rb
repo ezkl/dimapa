@@ -1,1 +1,1 @@
-require 'minitest/autorun'
+require "minitest/autorun"

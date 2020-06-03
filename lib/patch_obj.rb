@@ -1,4 +1,4 @@
-require 'uri'
+require "uri"
 
 # Class representing one patch operation.
 class PatchObj
@@ -15,7 +15,7 @@ class PatchObj
     @diffs = []
   end
 
-  OPERATOR_TO_CHAR = {insert: '+', delete: '-', equal: ' '}
+  OPERATOR_TO_CHAR = {insert: "+", delete: "-", equal: " "}
   private_constant :OPERATOR_TO_CHAR
 
   ENCODE_REGEX = /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/
@@ -30,14 +30,14 @@ class PatchObj
     coords1 = get_coords(length1, start1)
     coords2 = get_coords(length2, start2)
 
-    text = ['@@ -', coords1, ' +', coords2, " @@\n"].join
+    text = ["@@ -", coords1, " +", coords2, " @@\n"].join
 
     # Encode the body of the patch with %xx notation.
-    text += diffs.map do |op, data|
-      [OPERATOR_TO_CHAR[op],  PATCH_PARSER.escape(data, ENCODE_REGEX), "\n"].join
-    end.join.gsub('%20', ' ')
+    text += diffs.map { |op, data|
+      [OPERATOR_TO_CHAR[op], PATCH_PARSER.escape(data, ENCODE_REGEX), "\n"].join
+    }.join.gsub("%20", " ")
 
-    return text
+    text
   end
 
   def get_coords(length, start)
