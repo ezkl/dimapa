@@ -12,7 +12,7 @@ module DiffMethods
   # stripping any common prefix or suffix off the texts before editing.
   def diff_main(text1, text2, checklines = true, deadline = nil)
     # Set a deadline by which time the diff must be complete.
-    deadline ||= diff_newDeadline
+    deadline ||= diff_new_deadline
 
     # Check for null inputs.
     raise ArgumentError.new("Null inputs. (diff_main)") unless text1 || text2
@@ -42,11 +42,11 @@ module DiffMethods
   private :diff_main_compute_diff
 
   # Calculate a new deadline using the @diff_timeout configuration value
-  def diff_newDeadline
+  def diff_new_deadline
     Time.now + (diff_timeout.zero? ? FIXNUM_MAX : diff_timeout)
   end
 
-  private :diff_newDeadline
+  private :diff_new_deadline
 
   # Trim off the common prefix
   def diff_trim_common_prefix(text1, text2)
