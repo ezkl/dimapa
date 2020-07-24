@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = "dimapa"
   s.version = "0.1.0"
-  s.date = "2020-06-03"
-  s.summary = "Ruby implementation of Google's diff_match_patch"
-  s.description = "Ruby implementation of Google's diff_match_patch"
+  s.date = "2020-07-23"
+  s.summary = "Ruby implementation of Google's diff-match-patch"
+  s.description = "A modern Ruby implementation of Google's Diff Match Patch"
   s.authors = ["Ezekiel Templin", "Jorge Kalmbach"]
   s.email = ["zeke@templ.in", "kalmbach@gmail.com"]
   s.files = [
