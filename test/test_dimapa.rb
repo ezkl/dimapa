@@ -471,7 +471,7 @@ class DiffTest < Minitest::Test
 
     # Generates error (19 != 18)
     assert_raises ArgumentError do
-      @dmp.diff_from_delta(text1[1..-1], delta)
+      @dmp.diff_from_delta(text1[1..], delta)
     end
 
     # Test deltas with special characters.

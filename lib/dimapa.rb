@@ -207,8 +207,8 @@ class DiMaPa
   def diff_bisect_split(text1, text2, x, y, deadline)
     text1a = text1[0...x]
     text2a = text2[0...y]
-    text1b = text1[x..-1]
-    text2b = text2[y..-1]
+    text1b = text1[x..]
+    text2b = text2[y..]
 
     # Compute both diffs serially.
     diffs = diff_main(text1a, text2a, false, deadline)
@@ -308,7 +308,7 @@ class DiMaPa
 
     # Truncate the longer string.
     if text1_length > text2_length
-      text1 = text1[-text2_length..-1]
+      text1 = text1[-text2_length..]
     else
       text2 = text2[0...text1_length]
     end
@@ -323,13 +323,13 @@ class DiMaPa
     best = 0
     length = 1
     loop do
-      pattern = text1[(text_length - length)..-1]
+      pattern = text1[(text_length - length)..]
       found = text2.index(pattern)
 
       return best if found.nil?
 
       length += found
-      if found == 0 || text1[(text_length - length)..-1] == text2[0..length]
+      if found == 0 || text1[(text_length - length)..] == text2[0..length]
         best = length
         length += 1
       end
@@ -343,14 +343,14 @@ class DiMaPa
     j = -1
     best_common = ""
     while (j = shorttext.index(seed, j + 1))
-      prefix_length = diff_common_prefix(longtext[i..-1], shorttext[j..-1])
+      prefix_length = diff_common_prefix(longtext[i..], shorttext[j..])
       suffix_length = diff_common_suffix(longtext[0...i], shorttext[0...j])
       if best_common.length < suffix_length + prefix_length
         best_common = shorttext[(j - suffix_length)...j] + shorttext[j...(j + prefix_length)]
         best_longtext_a = longtext[0...(i - suffix_length)]
-        best_longtext_b = longtext[(i + prefix_length)..-1]
+        best_longtext_b = longtext[(i + prefix_length)..]
         best_shorttext_a = shorttext[0...(j - suffix_length)]
-        best_shorttext_b = shorttext[(j + prefix_length)..-1]
+        best_shorttext_b = shorttext[(j + prefix_length)..]
       end
     end
 
@@ -476,7 +476,7 @@ class DiMaPa
             diffs[pointer - 1][0] = :delete
             diffs[pointer - 1][1] = deletion[0...-overlap_length1]
             diffs[pointer + 1][0] = :insert
-            diffs[pointer + 1][1] = insertion[overlap_length1..-1]
+            diffs[pointer + 1][1] = insertion[overlap_length1..]
             pointer += 1
           end
         elsif overlap_length2 >= deletion.length / 2.0 || overlap_length2 >= insertion.length / 2.0
@@ -484,7 +484,7 @@ class DiMaPa
           diffs[pointer - 1][0] = :insert
           diffs[pointer - 1][1] = insertion[0...-overlap_length2]
           diffs[pointer + 1][0] = :delete
-          diffs[pointer + 1][1] = deletion[overlap_length2..-1]
+          diffs[pointer + 1][1] = deletion[overlap_length2..]
           pointer += 1
         end
         pointer += 1
@@ -551,7 +551,7 @@ class DiMaPa
         # First, shift the edit as far left as possible.
         common_offset = diff_common_suffix(equality1, edit)
         if common_offset != 0
-          common_string = edit[-common_offset..-1]
+          common_string = edit[-common_offset..]
           equality1 = equality1[0...-common_offset]
           edit = common_string + edit[0...-common_offset]
           equality2 = common_string + equality2
@@ -565,8 +565,8 @@ class DiMaPa
           diff_cleanup_semantic_score(edit, equality2)
         while edit[0] == equality2[0]
           equality1 += edit[0]
-          edit = edit[1..-1] + equality2[0]
-          equality2 = equality2[1..-1]
+          edit = edit[1..] + equality2[0]
+          equality2 = equality2[1..]
           score = diff_cleanup_semantic_score(equality1, edit) +
             diff_cleanup_semantic_score(edit, equality2)
           # The >= encourages trailing rather than leading whitespace on edits.
@@ -711,13 +711,13 @@ class DiMaPa
                   diffs.unshift([:equal, text_insert[0...common_length]])
                   pointer += 1
                 end
-                text_insert = text_insert[common_length..-1]
-                text_delete = text_delete[common_length..-1]
+                text_insert = text_insert[common_length..]
+                text_delete = text_delete[common_length..]
               end
               # Factor out any common suffixies.
               common_length = diff_common_suffix(text_insert, text_delete)
               if common_length != 0
-                diffs[pointer][1] = text_insert[-common_length..-1] + diffs[pointer][1]
+                diffs[pointer][1] = text_insert[-common_length..] + diffs[pointer][1]
                 text_insert = text_insert[0...-common_length]
                 text_delete = text_delete[0...-common_length]
               end
@@ -761,7 +761,7 @@ class DiMaPa
     while pointer < diffs.length - 1
       if diffs[pointer - 1][0] == :equal && diffs[pointer + 1][0] == :equal
         # This is a single edit surrounded by equalities.
-        if diffs[pointer][1][-diffs[pointer - 1][1].length..-1] == diffs[pointer - 1][1]
+        if diffs[pointer][1][-diffs[pointer - 1][1].length..] == diffs[pointer - 1][1]
           # Shift the edit over the previous equality.
           diffs[pointer][1] = diffs[pointer - 1][1] + diffs[pointer][1][0...-diffs[pointer - 1][1].length]
           diffs[pointer + 1][1] = diffs[pointer - 1][1] + diffs[pointer + 1][1]
@@ -770,7 +770,7 @@ class DiMaPa
         elsif diffs[pointer][1][0...diffs[pointer + 1][1].length] == diffs[pointer + 1][1]
           # Shift the edit over the next equality.
           diffs[pointer - 1][1] += diffs[pointer + 1][1]
-          diffs[pointer][1] = diffs[pointer][1][diffs[pointer + 1][1].length..-1] +
+          diffs[pointer][1] = diffs[pointer][1][diffs[pointer + 1][1].length..] +
             diffs[pointer + 1][1]
           diffs[pointer + 1, 1] = []
           changes = true
@@ -905,7 +905,7 @@ class DiMaPa
     delta.split("\t").each do |token|
       # Each token begins with a one character parameter which specifies the
       # operation of this token (delete, insert, equality).
-      param = token[1..-1]
+      param = token[1..]
       case token[0]
         when "+"
           diffs.push([:insert, PatchObj::PATCH_PARSER.unescape(param.force_encoding(Encoding::UTF_8))])
@@ -1119,7 +1119,7 @@ class DiMaPa
         end
 
         sign = text[text_pointer][0]
-        line = PatchObj::PATCH_PARSER.unescape(text[text_pointer][1..-1].force_encoding(Encoding::UTF_8))
+        line = PatchObj::PATCH_PARSER.unescape(text[text_pointer][1..].force_encoding(Encoding::UTF_8))
 
         case sign
         when "-"
@@ -1249,12 +1249,12 @@ class DiMaPa
           patch.diffs.push(diff)
           patch.length2 += diff_text.length
           postpatch_text = postpatch_text[0...char_count2] + diff_text +
-            postpatch_text[char_count2..-1]
+            postpatch_text[char_count2..]
         when :delete
           patch.length1 += diff_text.length
           patch.diffs.push(diff)
           postpatch_text = postpatch_text[0...char_count2] +
-            postpatch_text[(char_count2 + diff_text.length)..-1]
+            postpatch_text[(char_count2 + diff_text.length)..]
         when :equal
           if diff_text.length <= 2 * patch_margin &&
               !patch.diffs.empty? && diffs.length != x + 1
@@ -1323,7 +1323,7 @@ class DiMaPa
         # a monster delete.
         start_loc = match_main(text, text1[0, match_max_bits], expected_loc)
         if start_loc != -1
-          end_loc = match_main(text, text1[(text1.length - match_max_bits)..-1],
+          end_loc = match_main(text, text1[(text1.length - match_max_bits)..],
             expected_loc + text1.length - match_max_bits)
           if end_loc == -1 || start_loc >= end_loc
             # Can't find valid trailing context.  Drop this patch.
@@ -1346,7 +1346,7 @@ class DiMaPa
 
         if text1 == text2
           # Perfect match, just shove the replacement text in.
-          text = text[0, start_loc] + diff_text2(patch.diffs) + text[(start_loc + text1.length)..-1]
+          text = text[0, start_loc] + diff_text2(patch.diffs) + text[(start_loc + text1.length)..]
         else
           # Imperfect match.
           # Run a diff to get a framework of equivalent indices.
@@ -1363,10 +1363,10 @@ class DiMaPa
                 index2 = diff_x_index(diffs, index1)
               end
               if op == :insert # Insertion
-                text = text[0, start_loc + index2] + data + text[(start_loc + index2)..-1]
+                text = text[0, start_loc + index2] + data + text[(start_loc + index2)..]
               elsif op == :delete # Deletion
                 text = text[0, start_loc + index2] +
-                  text[(start_loc + diff_x_index(diffs, index1 + data.length))..-1]
+                  text[(start_loc + diff_x_index(diffs, index1 + data.length))..]
               end
               if op != :delete
                 index1 += data.length
@@ -1407,7 +1407,7 @@ class DiMaPa
     elsif padding_length > diffs.first[1].length
       # Grow first equality.
       extra_length = padding_length - diffs.first[1].length
-      diffs.first[1] = null_padding[diffs.first[1].length..-1] + diffs.first[1]
+      diffs.first[1] = null_padding[diffs.first[1].length..] + diffs.first[1]
       patch.start1 -= extra_length
       patch.start2 -= extra_length
       patch.length1 += extra_length
@@ -1489,13 +1489,13 @@ class DiMaPa
               if diff_text == big_patch.diffs.first[1]
                 big_patch.diffs.shift
               else
-                big_patch.diffs.first[1] = big_patch.diffs.first[1][diff_text.length..-1]
+                big_patch.diffs.first[1] = big_patch.diffs.first[1][diff_text.length..]
               end
             end
           end
 
           # Compute the head context for the next patch.
-          pre_context = diff_text2(patch.diffs)[-patch_margin..-1] || ""
+          pre_context = diff_text2(patch.diffs)[-patch_margin..] || ""
 
           # Append the end context for this patch.
           post_context = diff_text1(big_patch.diffs)[0...patch_margin] || ""

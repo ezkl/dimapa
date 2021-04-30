@@ -52,12 +52,19 @@ This project includes [scripts/](speedtests) mirroring those in the official
 project. Performance is on par with those reported for [Lua and Python][speedtest]
 albeit run on a faster machine.
 
-```
-$ rake speedtest
-
+```sh
+$ bundle exec rake speedtest
+Running benchmark with plain Ruby
+ruby scripts/speedtest.rb
               user     system      total        real
-diff(t2,t1) 13.658214   0.003937  13.662151 ( 13.662453)
-diff(t1,t2) 14.074079   0.000001  14.074080 ( 14.074350)
+diff(t2,t1)  9.587209   0.013017   9.600226 (  9.601807)
+diff(t1,t2)  9.750088   0.008715   9.758803 (  9.758928)
+
+Running benchmark with JIT enabled
+ruby --jit scripts/speedtest.rb
+              user     system      total        real
+diff(t2,t1)  5.345181   0.020641   7.082650 (  5.359839)
+diff(t1,t2)  6.528630   0.028800   7.395639 (  6.566026)
 ```
 
 ## Tests and Linting

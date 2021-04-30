@@ -52,8 +52,8 @@ module DiffMethods
   def diff_trim_common_prefix(text1, text2)
     if (common_length = diff_common_prefix(text1, text2)).nonzero?
       common_prefix = text1[0...common_length]
-      text1 = text1[common_length..-1]
-      text2 = text2[common_length..-1]
+      text1 = text1[common_length..]
+      text2 = text2[common_length..]
     end
 
     [common_prefix, text1, text2]
@@ -64,7 +64,7 @@ module DiffMethods
   # Trim off the common suffix
   def diff_trim_common_suffix(text1, text2)
     if (common_length = diff_common_suffix(text1, text2)).nonzero?
-      common_suffix = text1[-common_length..-1]
+      common_suffix = text1[-common_length..]
       text1 = text1[0...-common_length]
       text2 = text2[0...-common_length]
     end
@@ -119,7 +119,7 @@ module DiffMethods
     # Shorter text is inside the longer text (speedup).
     if (i = long.index(short))
       op = text1.length > text2.length ? :delete : :insert
-      [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..-1]]]
+      [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..]]]
 
     # Single character string.
     elsif short.length == 1
