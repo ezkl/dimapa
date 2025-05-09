@@ -66,27 +66,27 @@ class DiMaPa
 
     while pointer < diffs.length
       case diffs[pointer][0]
-        when :insert
-          count_insert += 1
-          text_insert += diffs[pointer][1]
-        when :delete
-          count_delete += 1
-          text_delete += diffs[pointer][1]
-        when :equal
-          # Upon reaching an equality, check for prior redundancies.
-          if count_delete >= 1 && count_insert >= 1
-            # Delete the offending records and add the merged ones.
-            a = diff_main(text_delete, text_insert, false, deadline)
-            diffs[pointer - count_delete - count_insert,
-              count_delete + count_insert] = []
-            pointer = pointer - count_delete - count_insert
-            diffs[pointer, 0] = a
-            pointer += a.length
-          end
-          count_insert = 0
-          count_delete = 0
-          text_delete = ""
-          text_insert = ""
+      when :insert
+        count_insert += 1
+        text_insert += diffs[pointer][1]
+      when :delete
+        count_delete += 1
+        text_delete += diffs[pointer][1]
+      when :equal
+        # Upon reaching an equality, check for prior redundancies.
+        if count_delete >= 1 && count_insert >= 1
+          # Delete the offending records and add the merged ones.
+          a = diff_main(text_delete, text_insert, false, deadline)
+          diffs[pointer - count_delete - count_insert,
+            count_delete + count_insert] = []
+          pointer = pointer - count_delete - count_insert
+          diffs[pointer, 0] = a
+          pointer += a.length
+        end
+        count_insert = 0
+        count_delete = 0
+        text_delete = ""
+        text_insert = ""
       end
       pointer += 1
     end
@@ -382,7 +382,7 @@ class DiMaPa
       hm = hm2.nil? ? hm1 : hm2
     else
       # Both matched.  Select the longest.
-      hm = hm1[4].length > hm2[4].length ? hm1 : hm2
+      hm = (hm1[4].length > hm2[4].length) ? hm1 : hm2
     end
 
     # A half-match was found, sort out the return data.
@@ -688,62 +688,62 @@ class DiMaPa
 
     while pointer < diffs.length
       case diffs[pointer][0]
-        when :insert
-          count_insert += 1
-          text_insert += diffs[pointer][1]
-          pointer += 1
-        when :delete
-          count_delete += 1
-          text_delete += diffs[pointer][1]
-          pointer += 1
-        when :equal
-          # Upon reaching an equality, check for prior redundancies.
-          if count_delete + count_insert > 1
-            if count_delete != 0 && count_insert != 0
-              # Factor out any common prefixies.
-              common_length = diff_common_prefix(text_insert, text_delete)
-              if common_length != 0
-                if (pointer - count_delete - count_insert) > 0 &&
-                    diffs[pointer - count_delete - count_insert - 1][0] == :equal
-                  diffs[pointer - count_delete - count_insert - 1][1] +=
-                    text_insert[0...common_length]
-                else
-                  diffs.unshift([:equal, text_insert[0...common_length]])
-                  pointer += 1
-                end
-                text_insert = text_insert[common_length..]
-                text_delete = text_delete[common_length..]
+      when :insert
+        count_insert += 1
+        text_insert += diffs[pointer][1]
+        pointer += 1
+      when :delete
+        count_delete += 1
+        text_delete += diffs[pointer][1]
+        pointer += 1
+      when :equal
+        # Upon reaching an equality, check for prior redundancies.
+        if count_delete + count_insert > 1
+          if count_delete != 0 && count_insert != 0
+            # Factor out any common prefixies.
+            common_length = diff_common_prefix(text_insert, text_delete)
+            if common_length != 0
+              if (pointer - count_delete - count_insert) > 0 &&
+                  diffs[pointer - count_delete - count_insert - 1][0] == :equal
+                diffs[pointer - count_delete - count_insert - 1][1] +=
+                  text_insert[0...common_length]
+              else
+                diffs.unshift([:equal, text_insert[0...common_length]])
+                pointer += 1
               end
-              # Factor out any common suffixies.
-              common_length = diff_common_suffix(text_insert, text_delete)
-              if common_length != 0
-                diffs[pointer][1] = text_insert[-common_length..] + diffs[pointer][1]
-                text_insert = text_insert[0...-common_length]
-                text_delete = text_delete[0...-common_length]
-              end
+              text_insert = text_insert[common_length..]
+              text_delete = text_delete[common_length..]
             end
-
-            # Delete the offending records and add the merged ones.
-            diffs[pointer - count_delete - count_insert, count_delete + count_insert] = if count_delete.zero?
-              [[:insert, text_insert]]
-            elsif count_insert.zero?
-              [[:delete, text_delete]]
-            else
-              [[:delete, text_delete], [:insert, text_insert]]
+            # Factor out any common suffixies.
+            common_length = diff_common_suffix(text_insert, text_delete)
+            if common_length != 0
+              diffs[pointer][1] = text_insert[-common_length..] + diffs[pointer][1]
+              text_insert = text_insert[0...-common_length]
+              text_delete = text_delete[0...-common_length]
             end
-            pointer = pointer - count_delete - count_insert +
-              (count_delete.zero? ? 0 : 1) + (count_insert.zero? ? 0 : 1) + 1
-          elsif pointer != 0 && diffs[pointer - 1][0] == :equal
-            # Merge this equality with the previous one.
-            diffs[pointer - 1][1] += diffs[pointer][1]
-            diffs[pointer, 1] = []
-          else
-            pointer += 1
           end
-          count_insert = 0
-          count_delete = 0
-          text_delete = ""
-          text_insert = ""
+
+          # Delete the offending records and add the merged ones.
+          diffs[pointer - count_delete - count_insert, count_delete + count_insert] = if count_delete.zero?
+            [[:insert, text_insert]]
+          elsif count_insert.zero?
+            [[:delete, text_delete]]
+          else
+            [[:delete, text_delete], [:insert, text_insert]]
+          end
+          pointer = pointer - count_delete - count_insert +
+            (count_delete.zero? ? 0 : 1) + (count_insert.zero? ? 0 : 1) + 1
+        elsif pointer != 0 && diffs[pointer - 1][0] == :equal
+          # Merge this equality with the previous one.
+          diffs[pointer - 1][1] += diffs[pointer][1]
+          diffs[pointer, 1] = []
+        else
+          pointer += 1
+        end
+        count_insert = 0
+        count_delete = 0
+        text_delete = ""
+        text_insert = ""
       end
     end
 
@@ -822,12 +822,12 @@ class DiMaPa
     diffs.map { |op, data|
       text = data.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('\n', "&para;<br>")
       case op
-        when :insert
-          "<ins style=\"background:#e6ffe6;\">#{text}</ins>"
-        when :delete
-          "<del style=\"background:#ffe6e6;\">#{text}</del>"
-        when :equal
-          "<span>#{text}</span>"
+      when :insert
+        "<ins style=\"background:#e6ffe6;\">#{text}</ins>"
+      when :delete
+        "<del style=\"background:#ffe6e6;\">#{text}</del>"
+      when :equal
+        "<span>#{text}</span>"
       end
     }.join
   end
@@ -863,15 +863,15 @@ class DiMaPa
 
     diffs.each do |op, data|
       case op
-        when :insert
-          insertions += data.length
-        when :delete
-          deletions += data.length
-        when :equal
-          # A deletion and an insertion is one substitution.
-          levenshtein += [insertions, deletions].max
-          insertions = 0
-          deletions = 0
+      when :insert
+        insertions += data.length
+      when :delete
+        deletions += data.length
+      when :equal
+        # A deletion and an insertion is one substitution.
+        levenshtein += [insertions, deletions].max
+        insertions = 0
+        deletions = 0
       end
     end
 
@@ -885,12 +885,12 @@ class DiMaPa
   def diff_to_delta(diffs)
     diffs.map { |op, data|
       case op
-        when :insert
-          "+" + PatchObj::PATCH_PARSER.escape(data, /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/)
-        when :delete
-          "-" + data.length.to_s
-        when :equal
-          "=" + data.length.to_s
+      when :insert
+        "+" + PatchObj::PATCH_PARSER.escape(data, /[^0-9A-Za-z_.;!~*'(),\/?:@&=+$\#-]/)
+      when :delete
+        "-" + data.length.to_s
+      when :equal
+        "=" + data.length.to_s
       end
     }.join("\t").gsub("%20", " ")
   end
@@ -907,28 +907,28 @@ class DiMaPa
       # operation of this token (delete, insert, equality).
       param = token[1..]
       case token[0]
-        when "+"
-          diffs.push([:insert, PatchObj::PATCH_PARSER.unescape(param.force_encoding(Encoding::UTF_8))])
-        when "-", "="
-          begin
-            n = Integer(param)
-            raise if n < 0
-            text = text1[pointer...(pointer + n)]
-            pointer += n
-            if token[0] == "="
-              diffs.push([:equal, text])
-            else
-              diffs.push([:delete, text])
-            end
-          rescue ArgumentError => _
-            raise ArgumentError.new(
-              "Invalid number in diff_fromDelta: #{param.inspect}"
-            )
+      when "+"
+        diffs.push([:insert, PatchObj::PATCH_PARSER.unescape(param.force_encoding(Encoding::UTF_8))])
+      when "-", "="
+        begin
+          n = Integer(param)
+          raise if n < 0
+          text = text1[pointer...(pointer + n)]
+          pointer += n
+          if token[0] == "="
+            diffs.push([:equal, text])
+          else
+            diffs.push([:delete, text])
           end
-        else
+        rescue ArgumentError => _
           raise ArgumentError.new(
-            "Invalid diff operation in diff_fromDelta: #{token.inspect}"
+            "Invalid number in diff_fromDelta: #{param.inspect}"
           )
+        end
+      else
+        raise ArgumentError.new(
+          "Invalid diff operation in diff_fromDelta: #{token.inspect}"
+        )
       end
     end
 
@@ -978,9 +978,9 @@ class DiMaPa
       proximity = (loc - x).abs
       if match_distance == 0
         # Dodge divide by zero error.
-        return proximity == 0 ? accuracy : 1.0
+        return (proximity == 0) ? accuracy : 1.0
       end
-      return accuracy + (proximity.to_f / match_distance)
+      accuracy + (proximity.to_f / match_distance)
     end
 
     # Highest score beyond which we give up.
@@ -1245,37 +1245,37 @@ class DiMaPa
       end
 
       case diff_type
-        when :insert
+      when :insert
+        patch.diffs.push(diff)
+        patch.length2 += diff_text.length
+        postpatch_text = postpatch_text[0...char_count2] + diff_text +
+          postpatch_text[char_count2..]
+      when :delete
+        patch.length1 += diff_text.length
+        patch.diffs.push(diff)
+        postpatch_text = postpatch_text[0...char_count2] +
+          postpatch_text[(char_count2 + diff_text.length)..]
+      when :equal
+        if diff_text.length <= 2 * patch_margin &&
+            !patch.diffs.empty? && diffs.length != x + 1
+          # Small equality inside a patch.
           patch.diffs.push(diff)
-          patch.length2 += diff_text.length
-          postpatch_text = postpatch_text[0...char_count2] + diff_text +
-            postpatch_text[char_count2..]
-        when :delete
           patch.length1 += diff_text.length
-          patch.diffs.push(diff)
-          postpatch_text = postpatch_text[0...char_count2] +
-            postpatch_text[(char_count2 + diff_text.length)..]
-        when :equal
-          if diff_text.length <= 2 * patch_margin &&
-              !patch.diffs.empty? && diffs.length != x + 1
-            # Small equality inside a patch.
-            patch.diffs.push(diff)
-            patch.length1 += diff_text.length
-            patch.length2 += diff_text.length
-          elsif diff_text.length >= 2 * patch_margin
-            # Time for a new patch.
-            unless patch.diffs.empty?
-              patch_add_context(patch, prepatch_text)
-              patches.push(patch)
-              patch = PatchObj.new
-              # Unlike Unidiff, our patch lists have a rolling context.
-              # http://code.google.com/p/google-diff-match-patch/wiki/Unidiff
-              # Update prepatch text & pos to reflect the application of the
-              # just completed patch.
-              prepatch_text = postpatch_text
-              char_count1 = char_count2
-            end
+          patch.length2 += diff_text.length
+        elsif diff_text.length >= 2 * patch_margin
+          # Time for a new patch.
+          unless patch.diffs.empty?
+            patch_add_context(patch, prepatch_text)
+            patches.push(patch)
+            patch = PatchObj.new
+            # Unlike Unidiff, our patch lists have a rolling context.
+            # http://code.google.com/p/google-diff-match-patch/wiki/Unidiff
+            # Update prepatch text & pos to reflect the application of the
+            # just completed patch.
+            prepatch_text = postpatch_text
+            char_count1 = char_count2
           end
+        end
       end
 
       # Update the current character count.
@@ -1342,7 +1342,7 @@ class DiMaPa
         # Found a match.  :)
         results[x] = true
         delta = start_loc - expected_loc
-        text2 = text[start_loc, end_loc == -1 ? text1.length : end_loc + match_max_bits]
+        text2 = text[start_loc, (end_loc == -1) ? text1.length : end_loc + match_max_bits]
 
         if text1 == text2
           # Perfect match, just shove the replacement text in.

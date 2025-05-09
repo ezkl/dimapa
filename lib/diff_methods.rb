@@ -118,7 +118,7 @@ module DiffMethods
 
     # Shorter text is inside the longer text (speedup).
     if (i = long.index(short))
-      op = text1.length > text2.length ? :delete : :insert
+      op = (text1.length > text2.length) ? :delete : :insert
       [[op, long[0...i]], [:equal, short], [op, long[(i + short.length)..]]]
 
     # Single character string.

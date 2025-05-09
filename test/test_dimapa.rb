@@ -1,4 +1,4 @@
-require_relative "./helper"
+require_relative "helper"
 require_relative "../lib/dimapa"
 
 class DiffTest < Minitest::Test
@@ -490,12 +490,12 @@ class DiffTest < Minitest::Test
     assert_equal(diffs, @dmp.diff_from_delta(text1, delta))
 
     # Verify pool of unchanged characters.
-    diffs = [[:insert, "A-Z a-z 0-9 - _ . ! ~ * \' ( )  / ? : @ & = + $ , # "]]
+    diffs = [[:insert, "A-Z a-z 0-9 - _ . ! ~ * ' ( )  / ? : @ & = + $ , # "]]
     text2 = @dmp.diff_text2(diffs)
-    assert_equal("A-Z a-z 0-9 - _ . ! ~ * \' ( )  / ? : @ & = + $ , # ", text2)
+    assert_equal("A-Z a-z 0-9 - _ . ! ~ * ' ( )  / ? : @ & = + $ , # ", text2)
 
     delta = @dmp.diff_to_delta(diffs)
-    assert_equal("+A-Z a-z 0-9 - _ . ! ~ * \' ( )  / ? : @ & = + $ , # ", delta)
+    assert_equal("+A-Z a-z 0-9 - _ . ! ~ * ' ( )  / ? : @ & = + $ , # ", delta)
 
     # Convert delta string into a diff.
     assert_equal(diffs, @dmp.diff_from_delta("", delta))
@@ -637,7 +637,7 @@ class DiffTest < Minitest::Test
     @dmp.diff_timeout = 0.1 # 100ms
     a = "`Twas brillig, and the slithy toves\nDid gyre and gimble in the " \
       "wabe:\nAll mimsy were the borogoves,\nAnd the mome raths outgrabe.\n"
-    b = "I am the very model of a modern major general,\nI\'ve information " \
+    b = "I am the very model of a modern major general,\nI've information " \
       "vegetable, animal, and mineral,\nI know the kings of England, and " \
       "I quote the fights historical,\nFrom Marathon to Waterloo, in " \
       "order categorical.\n"
@@ -929,7 +929,7 @@ class DiffTest < Minitest::Test
       '~!@#$%^&*()_+{}|:"<>?'
     )
     assert_equal(
-      "@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;\',./\n+~!" \
+      "@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;',./\n+~!" \
       "@\#$%25%5E&*()_+%7B%7D%7C:%22%3C%3E?\n",
       @dmp.patch_to_text(patches)
     )
@@ -942,7 +942,7 @@ class DiffTest < Minitest::Test
     assert_equal(
       diffs,
       @dmp.patch_from_text(
-        "@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;\',./\n+~!" \
+        "@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;',./\n+~!" \
         "@\#$%25%5E&*()_+%7B%7D%7C:%22%3C%3E?\n"
       ).first.diffs
     )
