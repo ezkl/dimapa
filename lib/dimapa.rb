@@ -946,7 +946,7 @@ class DiMaPa
       raise ArgumentError.new("Null input. (match_main)")
     end
 
-    loc = [0, [loc, text.length].min].max
+    loc = loc.clamp(0, text.length)
     if text == pattern
       # Shortcut (potentially not guaranteed by the algorithm)
       0
