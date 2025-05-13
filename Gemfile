@@ -8,6 +8,7 @@ gemspec
 
 group :development, :test do
   gem "benchmark"
+  gem "debug"
   gem "pry"
   gem "pry-doc"
   gem "reline"
