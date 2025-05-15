@@ -1205,4 +1205,16 @@ class DiffTest < Minitest::Test
     @dmp.diff_cleanup_semantic(diff_after)
     assert_equal(diff_before, diff_after)
   end
+
+  def test_reported_case_fix_with_lossless
+    # https://raw.githubusercontent.com/boxed/mutmut/refs/tags/2.0.0/tests/test_mutation.py
+    before = "        ('break', 'continue'),\n    ]\n)\ndef test_basic_mutations(original, expected):\n    actual, number_of_performed_mutations = mutate(Context(source=original, mutation_id=ALL, dict_synonyms=['Struct', 'FooBarDict']))\n    assert actual == expected, 'Performed {} mutations for original \"{}\"'.format(number_of_performed_mutations, original)\n\n\n@pytest.mark.parametrize(\n    'original, expected', [\n        ('x+=1', ['x=1', 'x-=1']),\n        ('x-=1', ['x=1', 'x+=1']),\n        ('x*=1', ['x=1', 'x/=1']),\n        ('x/=1', ['x=1', 'x*=1']),\n        ('x//=1', ['x=1', 'x/=1']),\n        ('x%=1', ['x=1', 'x/=1']),\n        ('x<<=1', ['x=1', 'x>>=1']),\n        ('x>>=1', ['x=1', 'x<<=1']),\n        ('x&=1', ['x=1', 'x|=1']),\n        ('x|=1', ['x=1', 'x&=1']),\n        ('x^=1', ['x=1', 'x&=1']),\n        ('x**=1', ['x=1', 'x*=1']),\n    ]\n)\ndef test_multiple_mutations(original, expected):\n    mutations = list_mutations(Context(source=original))\n    assert len(mutations) == 3\n    assert mutate(Context(source=original, mutation_id=mutations[0])) == (expected[0], 1)\n    assert mutate(Context(source=original, mutation_id=mutations[1])) == (expected[1], 1)\n\n\n@pytest.mark.parametrize(\n    'original, expected', [\n        ('a: int = 1', 'a: int = None'),\n        ('a: Optional[int] = None', 'a: Optional[int] = \"\"'),\n"
+    # https://raw.githubusercontent.com/boxed/mutmut/refs/tags/3.2.2/tests/test_mutation.py
+    after = "        ('x+=1', ['x=1', 'x-=1', 'x+=2']),\n        ('x-=1', ['x=1', 'x+=1', 'x-=2']),\n        ('x*=1', ['x=1', 'x/=1', 'x*=2']),\n        ('x/=1', ['x=1', 'x*=1', 'x/=2']),\n        ('x//=1', ['x=1', 'x/=1', 'x//=2']),\n        ('x%=1', ['x=1', 'x/=1', 'x%=2']),\n        ('x<<=1', ['x=1', 'x>>=1', 'x<<=2']),\n        ('x>>=1', ['x=1', 'x<<=1', 'x>>=2']),\n        ('x&=1', ['x=1', 'x|=1', 'x&=2']),\n        ('x|=1', ['x=1', 'x&=1', 'x|=2']),\n        ('x^=1', ['x=1', 'x&=1', 'x^=2']),\n        ('x**=1', ['x=1', 'x*=1', 'x**=2']),\n"
+
+    diff_before = @dmp.diff_main(before, after)
+    diff_after = diff_before.dup
+    @dmp.diff_cleanup_semantic_lossless(diff_after)
+    assert_equal(diff_before, diff_after)
+  end
 end
